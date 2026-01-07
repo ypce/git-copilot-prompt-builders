@@ -1,0 +1,53 @@
+#+TITLE: Copilot Commit & PR Prompt Tools
+#+AUTHOR: Vytautas Paulauskas
+#+LANGUAGE: en
+
+* Overview
+Generate *Copilot-ready* prompts from Git changes. This repository provides two lightweight CLI scripts:
+- =build_commit_prompt.py= → writes =prompt.md= with a concise commit *Summary* and *Description* scaffold plus a secret‑scrubbed diff.
+- =build_pr_prompt.py= → writes =pr_prompt.md= with a PR *title* and structured body (Summary, Changes, Testing, Risk & Rollback, Security & Compliance, Links, Checklist) plus a secret‑scrubbed diff.
+
+* Quick start
+#+BEGIN_SRC bash
+# Staged changes (default)
+python build_commit_prompt.py
+python build_pr_prompt.py
+#+END_SRC
+
+** Alternative inputs
+#+BEGIN_SRC bash
+# Unstaged working tree
+python build_commit_prompt.py --unstaged
+python build_pr_prompt.py --unstaged
+
+# Explicit range (two- or three-dot)
+python build_commit_prompt.py --range HEAD~3..HEAD
+python build_pr_prompt.py --range origin/main...HEAD
+
+# Compare against a base branch (PR fallback/explicit)
+python build_pr_prompt.py --against origin/release/2025.11
+
+# Increase truncation limit for the scrubbed diff
+python build_commit_prompt.py --max-chars 50000
+python build_pr_prompt.py --max-chars 50000
+#+END_SRC
+
+* What you get
+- Heuristic *title suggestion* using conventional types: =feat=, =fix=, =refactor=, =docs=, =test=, =build=, =chore=, =perf=, =security=.
+- Language/file mix and change-type hints extracted from the diff.
+- *Secret scrubbing* for common tokens, passwords, client secrets, and private keys.
+- Safe truncation of large diffs; outputs are deterministic and paste‑ready for Copilot.
+- PR script auto‑falls back to =origin/<default>...HEAD= when no staged/unstaged changes are present.
+
+* Requirements
+- Python 3.8+
+- Git available in your shell (run inside a Git repository)
+
+* Notes & tips
+- Keep your working tree clean and *stage* only what you want reflected in the prompt.
+- Consider a Git alias, e.g. =git config alias.prompt-commit '!python build_commit_prompt.py'=
+- Avoid secrets in commit/PR text; ensure *verified email* and *signed commits* per org policy.
+- Outputs: =prompt.md= and =pr_prompt.md= are written to the current directory.
+
+* License / usage
+Internal use. Follow your organization’s GitHub policies for repository naming, visibility, and compliance.
